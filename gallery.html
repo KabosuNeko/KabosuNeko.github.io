@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gallery - Nainne</title>
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/gallery.css">
+</head>
+
+<body>
+    <header class="page-header">
+        <div class="clock-widget">
+            <img src="assets/img/logo.png" alt="logo">
+            <span class="clock-time" id="clock">--:--</span>
+            <button class="theme-toggle" id="themeToggle" title="Toggle theme">☀</button>
+        </div>
+    </header>
+    <div class="gallery-container">
+        <header class="gallery-header">
+            <a href="index.html" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor">
+                    <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 214.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                Back home
+            </a>
+            <h1 class="gallery-title">Photo Gallery</h1>
+            <p class="gallery-subtitle">Captured moments from the journey 🏔️</p>
+        </header>
+
+        <main class="gallery-grid" id="galleryGrid">
+            <div class="gallery-placeholder">
+                <p>Add your photos to the <code>assets/gallery/</code> folder</p>
+                <p>and update the <code>galleryFiles</code> array in the script below.</p>
+            </div>
+        </main>
+
+        <footer class="gallery-footer">
+            <p>© Nainne</p>
+        </footer>
+    </div>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+        <button class="lightbox-nav lightbox-prev" onclick="changeImage(-1, event)">&#10094;</button>
+        <img src="" alt="Gallery image" class="lightbox-img" id="lightboxImg">
+        <button class="lightbox-nav lightbox-next" onclick="changeImage(1, event)">&#10095;</button>
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+
+    <div class="corner-character nadeshiko" onclick="toggleMusicPlayer()" tabindex="0" role="button" aria-label="Music player" data-tooltip="🎵 Music Player">
+        <img src="assets/img/nadeshiko.png" alt="Nadeshiko - click to open music">
+    </div>
+    <div class="corner-character rin" onclick="openGallery()" tabindex="0" role="button" aria-label="Photo gallery" data-tooltip="📷 Open gallery">
+        <img src="assets/img/rin.png" alt="Rin - click to open gallery">
+    </div>
+    
+    <div id="musicPlayerPopup" class="music-player-popup" style="display: none;">
+        <div class="music-player-header">
+            <span class="music-player-title">🎵 Now Playing</span>
+            <button class="music-player-close" onclick="closeMusicPlayer()">&times;</button>
+        </div>
+        <div class="music-player-info">
+            <div class="music-player-song" id="currentSongName">Select a song</div>
+            <div class="music-player-artist" id="currentSongArtist">Yuru Camp OST</div>
+        </div>
+        <div class="music-player-progress">
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="time-display">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+        <div class="music-player-controls">
+            <button class="control-btn" onclick="previousSong()" title="Previous">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                </svg>
+            </button>
+            <button class="control-btn play-btn" onclick="togglePlay()" id="playPauseBtn" title="Play/Pause">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" id="playIcon">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" id="pauseIcon" style="display: none;">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+            </button>
+            <button class="control-btn" onclick="nextSong()" title="Next">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <div id="copyToast" class="copy-toast" style="display: none;">copied to clipboard</div>
+    
+    <audio id="musicPlayer" preload="metadata"></audio>
+
+    <script src="assets/js/gallery.js"></script>
+    <script>
+        var musicFiles = [
+            "Fuyubiyori - Yuru Camp ED.mp3",
+            "Kiminone - Laid Back Journey ｜ ＂Laid-Back Camp Season 3＂ Opening Theme.mp3",
+            "Seize The Day [Yuru CampΔ OP SS2].mp3",
+            "TVアニメ『ゆるキャン△ SEASON３』オープニング映像.mp3",
+            "TVアニメ『ゆるキャン△ SEASON３』ノンクレジットエンディング映像.mp3",
+            "Yuru Camp (Laid-Back Camp) Movie OP FULL『Sun Is Coming Up』.mp3",
+            "Yuru Camp△ Movie Ending Full - Mimosa by Asaka.mp3",
+            "Yuru Camp Season 2 ED • 佐々木恵梨 Eri Sasaki - Haru no Tonari はるのとなり.mp3",
+            "[ Yuru Camp△⧸ゆるキャン△ ]Op - Shiny Days.mp3",
+            "亜咲花「So Precious」Music Video Full ver. (TVアニメ『ゆるキャン△ SEASON３』エンディングテーマ).mp3",
+            "【特別公開】『ゆるキャン△ SEASON２』ノンクレジットOP／亜咲花『Seize The Day』.mp3"
+        ];
+
+        var currentSongIndex = -1;
+        var isPlayerOpen = false;
+        var audio = document.getElementById('musicPlayer');
+        var playerPopup = document.getElementById('musicPlayerPopup');
+        var songNameEl = document.getElementById('currentSongName');
+        var playIcon = document.getElementById('playIcon');
+        var pauseIcon = document.getElementById('pauseIcon');
+        var progressFill = document.getElementById('progressFill');
+        var timeEl = document.getElementById('currentTime');
+        var durationEl = document.getElementById('duration');
+
+        function toggleMusicPlayer() {
+            if (isPlayerOpen) {
+                playerPopup.style.display = 'none';
+                isPlayerOpen = false;
+            } else {
+                if (musicFiles.length === 0) {
+                    showToast('Add music files to assets/musics/ folder!');
+                    return;
+                }
+                playerPopup.style.display = 'block';
+                isPlayerOpen = true;
+                if (!audio.paused && audio.src) {
+                    updatePlayButton(true);
+                    var src = audio.src.split('/').pop();
+                    if (src) songNameEl.textContent = cleanSongName(src);
+                } else if (currentSongIndex === -1) {
+                    playRandomSong();
+                }
+            }
+        }
+
+        function closeMusicPlayer() {
+            playerPopup.style.display = 'none';
+            isPlayerOpen = false;
+        }
+
+        function playRandomSong() {
+            currentSongIndex = Math.floor(Math.random() * musicFiles.length);
+            loadAndPlay(currentSongIndex);
+        }
+
+        function loadAndPlay(index) {
+            currentSongIndex = index;
+            var filename = musicFiles[index];
+            audio.src = 'assets/musics/' + filename;
+            songNameEl.textContent = cleanSongName(filename);
+            audio.play().then(function() {
+                updatePlayButton(true);
+            });
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                if (currentSongIndex === -1) {
+                    playRandomSong();
+                } else {
+                    audio.play();
+                    updatePlayButton(true);
+                }
+            } else {
+                audio.pause();
+                updatePlayButton(false);
+            }
+        }
+
+        function nextSong() {
+            if (musicFiles.length === 0) return;
+            currentSongIndex = (currentSongIndex + 1) % musicFiles.length;
+            loadAndPlay(currentSongIndex);
+        }
+
+        function previousSong() {
+            if (musicFiles.length === 0) return;
+            currentSongIndex = (currentSongIndex - 1 + musicFiles.length) % musicFiles.length;
+            loadAndPlay(currentSongIndex);
+        }
+
+        function updatePlayButton(playing) {
+            playIcon.style.display = playing ? 'none' : 'block';
+            pauseIcon.style.display = playing ? 'block' : 'none';
+        }
+
+        function cleanSongName(filename) {
+            var name = filename.replace(/\.mp3$/i, '');
+            return name.length > 35 ? name.substring(0, 32) + '...' : name;
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            var mins = Math.floor(seconds / 60);
+            var secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        function showToast(msg) {
+            var toast = document.getElementById('copyToast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(function() {
+                toast.style.display = 'none';
+                toast.textContent = 'copied to clipboard';
+            }, 3000);
+        }
+
+        audio.addEventListener('timeupdate', function() {
+            var progress = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = progress + '%';
+            timeEl.textContent = formatTime(audio.currentTime);
+            durationEl.textContent = formatTime(audio.duration);
+        });
+
+        audio.addEventListener('ended', nextSong);
+
+        audio.addEventListener('loadedmetadata', function() {
+            durationEl.textContent = formatTime(audio.duration);
+        });
+
+        document.getElementById('progressBar').addEventListener('click', function(e) {
+            var rect = this.getBoundingClientRect();
+            var pos = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pos * audio.duration;
+        });
+
+        function openGallery() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        var themeMode = localStorage.getItem('theme') || 'auto';
+        
+        function getAutoTheme() {
+            var hour = new Date().getHours();
+            return (hour < 6 || hour >= 18) ? 'night' : 'day';
+        }
+        
+        function applyTheme() {
+            var theme = themeMode === 'auto' ? getAutoTheme() : themeMode;
+            document.documentElement.setAttribute('data-theme', theme);
+            var btn = document.getElementById('themeToggle');
+            if (btn) {
+                btn.textContent = themeMode === 'auto' ? 'A' : (themeMode === 'day' ? '☀' : '☾');
+            }
+        }
+        
+        function toggleTheme() {
+            themeMode = themeMode === 'auto' ? 'day' : (themeMode === 'day' ? 'night' : 'auto');
+            localStorage.setItem('theme', themeMode);
+            applyTheme();
+        }
+
+        function updateClock() {
+            var now = new Date();
+            var h = now.getHours();
+            var m = now.getMinutes();
+            document.getElementById('clock').textContent = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            applyTheme();
+            updateClock();
+            setInterval(updateClock, 1000);
+            if (themeMode === 'auto') {
+                setInterval(applyTheme, 60000);
+            }
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            if (!audio.paused && audio.src) updatePlayButton(true);
+            document.querySelector('.nadeshiko').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMusicPlayer();
+                }
+            });
+            document.querySelector('.rin').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
